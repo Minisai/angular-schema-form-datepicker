@@ -1,16 +1,4 @@
 angular.module('schemaForm').directive('pickATime', function () {
-
-  //String dates for min and max is not supported
-  //https://github.com/amsul/pickadate.js/issues/439
-  //So strings we create dates from
-  var formatDate = function(value) {
-    //Strings or timestamps we make a date of
-    if (angular.isString(value) || angular.isNumber(value)) {
-      return new Date(value);
-    }
-    return value; //We hope it's a date object
-  };
-
   return {
     restrict: 'A',
     require: 'ngModel',
@@ -22,13 +10,13 @@ angular.module('schemaForm').directive('pickATime', function () {
       format: '='
     },
     link: function (scope, element, attrs, ngModel) {
-      //Bail out gracefully if pickadate is not loaded.
+      //Bail out gracefully if pickatime is not loaded.
       if (!element.pickatime) {
         return;
       }
 
       //By setting formatSubmit to null we inhibit the
-      //hidden field that pickadate likes to create.
+      //hidden field that pickatime likes to create.
       //We use ngModel formatters instead to format the value.
       var opts = {
         onClose: function () {
@@ -41,11 +29,9 @@ angular.module('schemaForm').directive('pickATime', function () {
       }
       element.pickatime(opts);
 
-      //Defaultformat is for json schema date-time is ISO8601
-      //i.e.  "yyyy-mm-dd"
       var defaultFormat = 'HH:i';
 
-      //View format on the other hand we get from the pickadate translation file
+      //View format on the other hand we get from the pickatime translation file
       var viewFormat = $.fn.pickatime.defaults.format;
 
       var picker = element.pickatime('picker');
@@ -73,7 +59,7 @@ angular.module('schemaForm').directive('pickATime', function () {
       if (angular.isDefined(attrs.mminTimein)) {
         var onceMin = scope.$watch('minTime', function (value) {
           if (value) {
-            picker.set('min', formatDate(value));
+            picker.set('min', value);
             onceMin();
           }
         }, true);
@@ -82,7 +68,7 @@ angular.module('schemaForm').directive('pickATime', function () {
       if (angular.isDefined(attrs.maxTime)) {
         var onceMax = scope.$watch('maxTime', function (value) {
           if (value) {
-            picker.set('max', formatDate(value));
+            picker.set('max', value);
             onceMax();
           }
         }, true);

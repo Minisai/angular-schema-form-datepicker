@@ -58,6 +58,52 @@ describe('Schema form', function() {
 
       });
     });
+
+    it('should use timepicker directive when format is "time"', function() {
+
+      //Mock pickatime
+      $.fn.pickatime = sinon.stub().returns({
+        set: sinon.stub(),
+        get: sinon.stub().returns('get')
+      });
+      $.fn.pickatime.defaults = {format: 'HH:i'};
+
+      inject(function($compile, $rootScope) {
+        var scope = $rootScope.$new();
+        scope.person = {partee: '01:02'};
+
+        scope.schema = {
+          type: 'object',
+          properties: {
+            partee: {
+              title: 'Parteeeeee',
+              type: 'string',
+              format: 'time'
+            }
+          }
+        };
+
+        scope.form = [{
+          key: 'partee',
+          maxTime: [14,0],
+          minTime: [7,30],
+        }];
+
+        var tmpl = angular
+                  .element('<form sf-schema="schema" sf-form="form" sf-model="person"></form>');
+
+        $compile(tmpl)(scope);
+        $rootScope.$apply();
+        tmpl.children().length.should.be.equal(1);
+        tmpl.children().eq(0).children().eq(0).is('div').should.be.true;
+        tmpl.children().eq(0).children().eq(0).find('input[pick-a-time]').length.should.ok;
+        tmpl.children().eq(0).children().eq(0).find('input[pick-a-time]').attr('max-time').should.be.ok;
+        tmpl.children().eq(0).children().eq(0).find('input[pick-a-time]').attr('min-time').should.be.ok;
+
+        $.fn.pickatime.should.have.beenCalled;
+
+      });
+    });
   });
 
 });
